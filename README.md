@@ -1,1 +1,0 @@
-# Video-Text-Alignment
