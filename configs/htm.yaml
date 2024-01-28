@@ -1,0 +1,54 @@
+project_name: internvideo #internvideo #CLIP
+use_wandb: False
+
+dataset:
+  name: htm
+  text_type: step # whisperx , asr , step
+  mix_dataset: False
+  visual_backbone: internvideo #CLIP # internvideo # S3D
+  # ht step
+  # text_shuffle: True
+  # text_pe: False
+  # ht align
+  text_shuffle: False
+  text_pe: True
+
+dataloader:
+  phases: ['train','test'] #['train', 'ht-align', 'ht-step']
+  batch_size: 8
+  num_workers: 16
+
+model:
+  name: detr
+  d_model: 256
+  d_proj: 64
+  nhead: 8
+  dropout: 0.1
+  enc_layers: 3
+  dec_layers: 3
+  # checkpoint: '/GPFS/data/zeqianli/projects/Alignment/output/internvideo/step_round2_shuffle_mix/epoch-12.pth'
+  checkpoint: ''
+  # checkpoint: '/GPFS/data/qiruichen/dbcloud-backup/projects/Alignment/output/1030-htm-align/stepv2sim-whi-repro/epoch-12.pth'
+  save_model: True
+
+criterions: 
+  name: similarity
+  params: {}
+
+optimizer:
+  name: adamw
+  init_lr: 1e-4
+  weight_decay: 5e-5
+  grad_clip: 1.0
+
+scheduler:
+  # name: warmup_cosine
+  # warmup_ratio: 0.2
+  # start_epoch: 1
+  # num_epochs: 12
+
+  name: cos_decay
+  start_epoch: 1
+  num_epochs: 20
+
+eval_epochs: 1
