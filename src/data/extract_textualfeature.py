@@ -28,6 +28,8 @@ if __name__ == "__main__":
     lm = load_model("./InternVideo/Pretrain/Multi-Modalities-Pretraining/models/InternVideo-MM-L-14.ckpt").to(device)
     lm.requires_grad_(False)
 
+    #############################################
+    # pre-process htm text feature
     # text_root = "/remote-home/share/zeqianli/HowTo100M/S3_whisperX_large_v2/S3_whisperX_large_v2"
     # save_root = "/remote-home/share/zeqianli/HowTo100M/whisperX_InternVideo/"
 
@@ -70,6 +72,7 @@ if __name__ == "__main__":
     #     with open(osp.join(text_root, sub_folder, f"{sub_folder}.json"), "w") as fp:
     #         json.dump(json_data, fp)
 
+    #############################################
     # pre-process htm-align text feature
     # htm_align_path = "/remote-home/share/zeqianli/HowTo100M/TAN/HTM-Align/htm_align.json"
     # htm_align_save_path = "/remote-home/share/zeqianli/HowTo100M/TAN/HTM-Align/text_internvideo"
@@ -95,7 +98,7 @@ if __name__ == "__main__":
     #     }
     #     torch.save(save_dict, osp.join(htm_align_save_path, f'{vid}.pth'))
 
-
+    #############################################
     # pre-process htm-step text feature
     htm_step_path = "/remote-home/share/zeqianli/HowTo100M/HT-Step/test_input_headline.json"
     htm_step_save_path = "/remote-home/share/zeqianli/HowTo100M/HT-Step/text_internvideo"

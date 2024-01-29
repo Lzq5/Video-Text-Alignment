@@ -26,9 +26,7 @@ model:
   dropout: 0.1
   enc_layers: 3
   dec_layers: 3
-  # checkpoint: '/GPFS/data/zeqianli/projects/Alignment/output/internvideo/step_round2_shuffle_mix/epoch-12.pth'
   checkpoint: ''
-  # checkpoint: '/GPFS/data/qiruichen/dbcloud-backup/projects/Alignment/output/1030-htm-align/stepv2sim-whi-repro/epoch-12.pth'
   save_model: True
 
 criterions: 
@@ -42,11 +40,6 @@ optimizer:
   grad_clip: 1.0
 
 scheduler:
-  # name: warmup_cosine
-  # warmup_ratio: 0.2
-  # start_epoch: 1
-  # num_epochs: 12
-
   name: cos_decay
   start_epoch: 1
   num_epochs: 20
