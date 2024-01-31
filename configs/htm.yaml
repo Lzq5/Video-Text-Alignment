@@ -3,18 +3,18 @@ use_wandb: False
 
 dataset:
   name: htm
-  text_type: step # whisperx , asr , step
-  mix_dataset: False
-  visual_backbone: internvideo #CLIP # internvideo # S3D
-  # ht step
+  text_type: step # whisperx or step
+  mix_dataset: True # when the text_type is step, True for using both whisperx output and howtostep for training
+  visual_backbone: internvideo
+  ######## For procedural step grounding task
   # text_shuffle: True
   # text_pe: False
-  # ht align
+  ######## For narration alignment task
   text_shuffle: False
   text_pe: True
 
 dataloader:
-  phases: ['train','test'] #['train', 'ht-align', 'ht-step']
+  phases: ['train','test']
   batch_size: 8
   num_workers: 16
 

@@ -143,16 +143,20 @@ class HTMDataset(data.Dataset):
         HTSTEP_data = json.load(open('/DB/data/zeqianli/datasets/HowTo100M/HT-Step/test_input_headline.json'))
         HTSTEP_vids = list(HTSTEP_data.keys())
         htm370k_vid_path = '/DB/data/zeqianli/datasets/HowTo100M/TAN/Sentencified-HTM/HTM-370K/htm370k_vids.txt'
-        vid_to_folder_path = '/DB/data/zeqianli/datasets/HowTo100M/vid_to_folder.json'
+        vid_to_folder_path = './data/vid_to_folder.json' # The folder to which each vid belongs in the internvideo feature.
+        text_root_whisperx = '/DB/data/zeqianli/datasets/HowTo100M/whisperX_InternVideo/'
+        path_record_whisperx = 'data/htm370k.pth'
+        text_root_howtostep = '/DB/data/zeqianli/datasets/HowToStep/Steps370k_round2/internvideo_round1_0.15_round2_duration_0.8_8_start'
+        path_record_howtostep = 'data/howtostep.pth'
+
         if cfg.dataset.visual_backbone == 'internvideo':
             self.clip_root = '/DB/data/zeqianli/datasets/HowTo100M/InternVideo_feature/internvideo_MM_L14/'
             if cfg.dataset.text_type == 'whisperx':
-                self.text_root = '/DB/data/zeqianli/datasets/HowTo100M/whisperX_InternVideo/'
-                path_record = 'data/htm370k.pth'
+                self.text_root = text_root_whisperx
+                path_record = path_record_whisperx
             elif cfg.dataset.text_type == 'step':
-                self.text_root = '/DB/data/zeqianli/datasets/HowToStep/Steps370k_round2/internvideo_round1_0.15_round2_duration_0.8_8_start'
-                step_param = self.text_root.split('/')[-2] + '_' + self.text_root.split('/')[-1]
-                path_record = 'data/{}.pth'.format(step_param)
+                self.text_root = text_root_howtostep
+                path_record = path_record_howtostep
 
         # text timestamp path
         with open(htm370k_vid_path, 'r') as f:
@@ -170,7 +174,22 @@ class HTMDataset(data.Dataset):
                 ## use whisperx and howtostep
                 anno_data1 = torch.load(path_record, map_location='cpu')
                 if cfg.dataset.visual_backbone == 'internvideo':
-                    anno_data2 = torch.load("data/htm370k.pth", map_location='cpu')
+                    if osp.exists(path_record_whisperx):
+                        anno_data2 = torch.load(path_record_whisperx, map_location='cpu')
+                    else:
+                        anno_data2 = []
+                        for vid in tqdm(htm370k_vid, desc="Reading Video Path"):
+                            vid = vid.strip()
+                            if (vid not in vid_to_folder) or (vid in skip_list) or (vid in HTSTEP_vids):
+                                continue
+                            else:
+                                sub_folder = vid_to_folder[vid]
+                                visual_path = osp.join(self.clip_root, sub_folder, f"{vid}.pth.tar")
+                                text_path = osp.join(text_root_whisperx, sub_folder, f"{vid}.pth")
+                                if osp.exists(visual_path) and osp.exists(text_path):
+                                    anno_data2.append([vid, visual_path, text_path])
+                        torch.save(anno_data2, path_record_whisperx)
+
                 self.anno_data = anno_data1 + anno_data2
 
         else:
@@ -194,7 +213,21 @@ class HTMDataset(data.Dataset):
                 ## use whisperx and howtostep
                 anno_data1 = anno_data
                 if cfg.dataset.visual_backbone == 'internvideo':
-                    anno_data2 = torch.load("data/htm370k.pth", map_location='cpu')
+                    if osp.exists(path_record_whisperx):
+                        anno_data2 = torch.load(path_record_whisperx, map_location='cpu')
+                    else:
+                        anno_data2 = []
+                        for vid in tqdm(htm370k_vid, desc="Reading Video Path"):
+                            vid = vid.strip()
+                            if (vid not in vid_to_folder) or (vid in skip_list) or (vid in HTSTEP_vids):
+                                continue
+                            else:
+                                sub_folder = vid_to_folder[vid]
+                                visual_path = osp.join(self.clip_root, sub_folder, f"{vid}.pth.tar")
+                                text_path = osp.join(text_root_whisperx, sub_folder, f"{vid}.pth")
+                                if osp.exists(visual_path) and osp.exists(text_path):
+                                    anno_data2.append([vid, visual_path, text_path])
+                        torch.save(anno_data2, path_record_whisperx)
                 self.anno_data = anno_data1 + anno_data2
         print("==== {} Samples ====".format(len(self.anno_data)))
 
