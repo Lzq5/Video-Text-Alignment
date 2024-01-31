@@ -1,3 +1,6 @@
-@article{
-      
+@article{li2023strong,
+  title={A Strong Baseline for Temporal Video-Text Alignment},
+  author={Li, Zeqian and Chen, Qirui and Han, Tengda and Zhang, Ya and Wang, Yanfeng and Xie, Weidi},
+  journal={arXiv preprint arXiv:2312.14055},
+  year={2023}
 }
