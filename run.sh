@@ -1,1 +1,1 @@
-python main.py --gpu 1 --config_file configs/htm.yaml --run_name train
+python main.py --gpu 0 --config_file configs/htm.yaml --run_name train

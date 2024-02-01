@@ -42,6 +42,6 @@ optimizer:
 scheduler:
   name: cos_decay
   start_epoch: 1
-  num_epochs: 20
+  num_epochs: 12
 
 eval_epochs: 1
