@@ -335,10 +335,10 @@
     <h2> Architecture </h2>
   </center>
   <p style="text-align:justify; text-justify:inter-ideograph;">
-    <p><div style="text-align: center;"><img class="left" src="./resources/model.jpg" width="400px"></div></p>
+    <p><div style="text-align: center;"><img class="left" src="./resources/network-resize.png" width="400px"></div></p>
     <p>
       <left>
-        Schematic visualization of the proposed Transformer-based video-text alignment network termed <b>NSVA</b>.
+        Schematic visualization of the proposed Transformer-based video-text alignment network termed <b>NaSVA</b>.
         The visual features are treated as key-value pairs while textual features are treated as queries, to predict the alignment score matrix between video frames and texts. </left>
     </p>
 
@@ -354,11 +354,11 @@
           As presented in the following figure, 
           the entire procedure of ASR transcripts transformation can be divided into three parts: 
           (i) we leverage LLM to summarize narrations from the ASR transcript into descriptive steps; (ii) we use the similarity between the original transcript and generated steps to roughly determine the start/end timestamp for each step as pseudo-label; 
-          (iii) we train the <b>NSVA</b> model on the generated steps with pseudo-label, and then use the trained model to refine the time range for each generated step (i.e., self-training). 
+          (iii) we train the <b>NaSVA</b> model on the generated steps with pseudo-label, and then use the trained model to refine the time range for each generated step (i.e., self-training). 
           We name the final dataset as <b>HowToStep</b>.
         </left>
       </p>
-      <p><img class="left" src="./resources/pipeline.jpg" width="800px"></p>
+      <p><img class="left" src="./resources/pipeline-resize_10.png" width="800px"></p>
       <br>
       <hr>
       <center>
@@ -366,17 +366,17 @@
       </center>
       <p>
         <left>
-          We compare our best model with existing state-of-the-art approaches, to present a strong, yet simple baseline on video-text alignment for future research. 
+          We compare our best model with existing state-of-the-art approaches on three public benchmarks for multi-sentence grounding tasks. 
           As shown in the table, on the challenging HT-Step task, 
           that aims to ground unordered procedural steps in videos, 
-          our model achieves 46.7% R@1, leading to an absolute improvement of 9.3%, over the existing state-of-the-art (37.4%) achieved by VINA;
+          our model achieves 46.4% R@1, leading to an absolute improvement of 9.0%, over the existing state-of-the-art (37.4%) achieved by VINA.
           On HTM-Align, which aligns narrations in the video, 
-          our method exceeds sota model by 3.4%; 
-          On CrossTask, where we need to align video frames and task-specific steps without finetuning, our method outperforms existing state-of-the-art approach by 4.7%,
-          demonstrating our model learns stronger joint video-text representation.</left>
+          our method exceeds the SOTA model by 5.1%. 
+          On CrossTask, where we need to align video frames and task-specific steps without finetuning, our method outperforms existing the state-of-the-art approach by 1.9%,
+          demonstrating the effectiveness of the proposed pipeline for downstream grounding tasks.</left>
       </p>
       <center>
-        <p><img class="center" src="./resources/results.jpg" width="400px"></p>
+        <p><img class="center" src="./resources/results.png" width="400px"></p>
       </center>
       <br>
       <hr>
