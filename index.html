@@ -186,7 +186,7 @@
       background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
     }
   </style>
-  <title>A Strong Baseline for Temporal Video-Text Alignment
+  <title>Multi-Sentence Grounding for Long-term Instructional Video
   </title>
 </head>
 
@@ -211,7 +211,7 @@
         </td>
         <td align="center" width="200px">
           <center>
-            <span style="font-size:16px"><a href="https://tengdahan.github.io/">Tengda Han</a><sup>2</sup></span>
+            <span style="font-size:16px"><a href="https://tengdahan.github.io/">Tengda Han</a><sup>3</sup></span>
           </center>
         </td>
       </tr>
@@ -222,17 +222,17 @@
       <tr>
         <td align="center" width="200px">
           <center>
-            <span style="font-size:16px"><a href="https://mediabrain.sjtu.edu.cn/yazhang/">Ya Zhang</a><sup>1</sup></span>
+            <span style="font-size:16px"><a href="https://mediabrain.sjtu.edu.cn/yazhang/">Ya Zhang</a><sup>1,2</sup></span>
           </center>
         </td>
         <td align="center" width="200px">
           <center>
-            <span style="font-size:16px"><a href="https://cmic.sjtu.edu.cn/wangyanfeng/">Yanfeng Wang</a><sup>1</sup></span>
+            <span style="font-size:16px"><a href="https://cmic.sjtu.edu.cn/wangyanfeng/">Yanfeng Wang</a><sup>1,2</sup></span>
           </center>
         </td>
         <td align="center" width="200px">
           <center>
-            <span style="font-size:16px"><a href="https://weidixie.github.io/">Weidi Xie</a><sup>1,2</sup></span>
+            <span style="font-size:16px"><a href="https://weidixie.github.io/">Weidi Xie</a><sup>1,2,3</sup></span>
           </center>
         </td>
       </tr>
@@ -254,7 +254,12 @@
       <tr>
         <td align="center" width="400px">
           <center>
-            <span style="font-size:16px"><sup>2</sup>Visual Geometry Group, University of Oxford</span>
+            <span style="font-size:16px"><sup>2</sup>Shanghai AI Laboratory, China</span>
+          </center>
+        </td>
+        <td align="center" width="400px">
+          <center>
+            <span style="font-size:16px"><sup>3</sup>Visual Geometry Group, University of Oxford</span>
           </center>
         </td>
       </tr>
@@ -302,13 +307,25 @@
   </center>
   <p style="text-align:justify; text-justify:inter-ideograph;">
     <left>
-      In this paper, we consider the problem of temporally aligning the video and texts from instructional videos, specifically, given a long-term video, and associated text sentences, our goal is to determine their corresponding timestamps in the video.
-      To this end, we establish a simple, yet strong model that adopts a Transformer-based architecture with all texts as queries, iteratively attending to the visual features, to infer the optimal timestamp. We conduct thorough experiments to investigate: 
-      (i) the effect of upgrading ASR systems to reduce errors from speech recognition, 
-      (ii) the effect of various visual-textual backbones, ranging from CLIP to S3D, to the more recent InternVideo, 
-      (iii) the effect of transforming noisy ASR transcripts into descriptive steps by prompting a large language model (LLM), to summarize the core activities within the ASR transcript as a new training dataset. 
-      As a result, our proposed simple model demonstrates superior performance on both narration alignment and procedural step grounding tasks, surpassing existing state-of-the-art methods by a significant margin on three public benchmarks, namely, 9.3% on HT-Step, 3.4% on HTM-Align and 4.7% on CrossTask. 
-      We believe the proposed model and dataset with descriptive steps can be treated as a strong baseline for future research in temporal video-text alignment. All codes, models, and the resulting dataset will be publicly released to the research community.
+      In this paper, we aim to establish an automatic, scalable pipeline for denoising the large-scale instructional
+      dataset and construct a high-quality video-text dataset,
+      named HowToStep. We make the following contributions:
+      (i) we improve the quality of textual narration by upgrading
+      ASR systems, i.e., to reduce errors from speech recognition,
+      and later transform noisy ASR transcripts into descriptive
+      steps by prompting a large language model; (ii) we propose
+      a Transformer-based architecture with all texts as queries,
+      iteratively attending to the visual features, to temporally
+      align the descriptive texts to corresponding video segments.
+      (iii) to measure the quality of our curated datasets, we train
+      models for the task of multi-sentence grounding on it, i.e.,
+      given a long-term video, and associated multiple sentences,
+      our goal is to determine the corresponding timestamps for
+      all sentences in the video, as a result, our model demonstrates superior performance on multi-sentence grounding
+      tasks, surpassing existing state-of-the-art methods by a significant margin on three public benchmarks, namely, 9.0%
+      on HT-Step, 5.1% on HTM-Align and 1.9% on CrossTask.
+      All codes, models, and the resulting dataset will be publicly
+      released to the research community.
     </left>
   </p>
 
