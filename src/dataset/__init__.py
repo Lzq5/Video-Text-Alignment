@@ -7,11 +7,10 @@ import torch.utils.data as data
 def build_dataloader(cfg, phase):
 
     if cfg.dataset.name == 'htm':
-        if phase == 'test' or osp.exists(cfg.model.checkpoint):
-            if cfg.dataset.text_shuffle :
-                dataset = HTMStepDataset(cfg)
-            else:
-                dataset = HTMAlignDataset(cfg)
+        if phase == 'htm-align':
+            dataset = HTMAlignDataset(cfg)
+        elif phase == 'ht-step':
+            dataset = HTMStepDataset(cfg)
         else:
             dataset = HTMDataset(cfg)
     else:
@@ -20,7 +19,7 @@ def build_dataloader(cfg, phase):
     loader = data.DataLoader(
         dataset=dataset,
         batch_size=cfg.dataloader.batch_size,
-        shuffle=False if phase == "test" else True, # according to video length
+        shuffle=True if phase == "train" else False, # according to video length
         drop_last=False,
         num_workers=cfg.dataloader.num_workers,
         pin_memory=True,

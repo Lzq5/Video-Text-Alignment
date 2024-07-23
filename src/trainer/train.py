@@ -13,9 +13,13 @@ import wandb
 import random
 import json
 import ipdb
-from ..dataset.dataset import pad_sequence_by_last
+from ..dataset.dataset import pad_sequence_by_last, MRDataset
 from ..utils.utils import AverageMeter
 from ..utils.visualize import *
+from torch.utils.data import DataLoader
+import sys
+sys.path.append('path_to_Video-Text-Alignment')
+from src.InternVideo import load_model, tokenize
 
 
 @torch.no_grad()
@@ -42,10 +46,12 @@ def evaluate_htmalign(cfg, loader, model, criterion, device, epoch):
         target_sign = input_batch['target_sign'].to(device, non_blocking=True)
         time_mask = input_batch['time_mask'].to(device, non_blocking=True)
 
+        shuffle = input_batch['shuffle']
+
         # forward
         with torch.no_grad():
             pred_similarity_list, pred_time = model.compute_all(
-                visual_input, visual_padding_mask, text_input, text_padding_mask)
+                visual_input, visual_padding_mask, text_input, text_padding_mask, shuffle)
             
             input_time = model.compute_input_similarity(visual_input, visual_padding_mask, text_input, text_padding_mask)
             loss = criterion(pred_similarity_list[-1], text_padding_mask, visual_padding_mask, time_mask)
@@ -92,11 +98,13 @@ def evaluate_htmstep(cfg, loader, model, criterion, device, epoch):
             device, non_blocking=True)
         text_padding_mask = input_batch['text_padding_mask'].to(
             device, non_blocking=True)
+        
+        shuffle = input_batch['shuffle']
 
         # forward
         with torch.no_grad():
             _, pred_time = model.compute_all(
-                visual_input, visual_padding_mask, text_input, text_padding_mask)
+                visual_input, visual_padding_mask, text_input, text_padding_mask, shuffle)
             
         for idx, time in enumerate(pred_time):
             result[vid[idx]] = time[~text_padding_mask[idx]].cpu().numpy().tolist()
@@ -132,11 +140,12 @@ def train_similarity(cfg, loader, model, criterion, optimizer, lr_scheduler, dev
     losses = AverageMeter('Loss', ':.4f')
     pbar = tqdm(loader, desc=f'Training epoch {epoch}')
 
-    input_correct_num, pred_correct_num, total_num = 0, 0, 0
+    pred_correct_num, total_num = 0, 0
     
     for batch_idx, input_batch in enumerate(pbar, start=1):
         model.train()
-
+        
+        # ipdb.set_trace()
         visual_input = input_batch['visual_input'].to(
             device, non_blocking=True)
         visual_padding_mask = input_batch['visual_padding_mask'].to(
@@ -149,12 +158,13 @@ def train_similarity(cfg, loader, model, criterion, optimizer, lr_scheduler, dev
             device, non_blocking=True)
         time_mask = input_batch['time_mask'].to(device, non_blocking=True)
 
+        shuffle = input_batch['shuffle']
+
         B, T, _ = visual_input.shape[:]
         S = text_input.shape[1]
-
         # forward
         pred_similarity_list, pred_time = model.compute_all(
-            visual_input, visual_padding_mask, text_input, text_padding_mask)
+            visual_input, visual_padding_mask, text_input, text_padding_mask, shuffle)
 
         loss, num_layers = .0, pred_similarity_list.shape[0]
         for i in range(num_layers):
@@ -191,16 +201,14 @@ def do_train(cfg, loaders, model, criterion, optimizer, lr_scheduler, device, ch
 
     start, total = cfg.scheduler.start_epoch, cfg.scheduler.num_epochs
     if checkpointer.ckpt is not None:
-        if cfg.dataset.text_shuffle:
-            evaluate_htmstep(cfg, loaders['test'], model, criterion, device, 0)
-        else:
-            evaluate_htmalign(cfg, loaders['test'], model, criterion, device, 0)
+        evaluate_htmstep(cfg, loaders['ht-step'], model, criterion, device, 0)
+        evaluate_htmalign(cfg, loaders['htm-align'], model, criterion, device, 0)
         return
 
     for epoch in range(start, start+total):
         train_similarity(
             cfg, 
-            loaders[cfg.dataloader.phases[0]], 
+            loaders['train'], 
             model, 
             criterion, 
             optimizer, 
@@ -209,16 +217,13 @@ def do_train(cfg, loaders, model, criterion, optimizer, lr_scheduler, device, ch
             epoch
         )
         if epoch % cfg.eval_epochs == 0 or epoch == 1:
-            if cfg.dataset.text_shuffle == False:
-                evaluate_htmalign(cfg, loaders['test'], model, criterion, device, epoch)
+            evaluate_htmalign(cfg, loaders['htm-align'], model, criterion, device, epoch)
         if epoch == total:
             if cfg.model.save_model:
                 checkpointer.save(epoch, model, optimizer)
-            if cfg.dataset.text_shuffle:
-                evaluate_htmstep(cfg, loaders['test'], model, criterion, device, 0)
+            evaluate_htmstep(cfg, loaders['ht-step'], model, criterion, device, 0)
 
-def do_eval(cfg, loaders, model, criterion, device):
-    # evaluate_crosstask(cfg, loaders, model, device, 0)
-    evaluate_htmalign(cfg, loaders, model, criterion, device, 0)
-    # evaluate_htmstep(cfg, loaders[cfg.dataloader.phases[-1]], model, criterion, device, 0)
-            
+def save_jsonl(data, filename):
+    """data is a list"""
+    with open(filename, "w") as f:
+        f.write("\n".join([json.dumps(e) for e in data]))

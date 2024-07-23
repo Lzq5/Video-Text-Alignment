@@ -87,7 +87,6 @@ class DETR(nn.Module):
             num_layers=cfg.model.enc_layers,
         )
 
-        self.use_text_pos = cfg.dataset.text_pe
         self.text_pos_enc = nn.Embedding(1024, self.d_model)
         
         decoder_layer = TransformerDecoderLayer(
@@ -127,7 +126,7 @@ class DETR(nn.Module):
             nn.init.constant_(m.weight, val=1.0)
             nn.init.constant_(m.bias.data, 0)
 
-    def forward(self, visual_input, visual_padding_mask, text_input, text_padding_mask):
+    def forward(self, visual_input, visual_padding_mask, text_input, text_padding_mask, shuffle):
         T, S = visual_input.shape[1], text_input.shape[1]
 
         visual_input = visual_input.transpose(0, 1)
@@ -137,19 +136,18 @@ class DETR(nn.Module):
         visual_pos_enc = self.visual_pos_enc.pe[:, :T, :].transpose(0, 1)
 
         text_embed = self.text_proj(text_input)
-        text_pos_enc = self.text_pos_enc.weight[:S, None, :]
+        
+        if not shuffle:
+            text_pos_enc = self.text_pos_enc.weight[:text_embed.shape[0], None, :] # (S, 1, d_model)
+        else:
+            text_pos_enc = None
 
         visual_embed = self.visual_encoder(
             visual_embed, src_key_padding_mask=visual_padding_mask, pos=visual_pos_enc)
-
-        if self.use_text_pos:
-            out = self.decoder(text_embed, visual_embed, tgt_key_padding_mask=text_padding_mask,
-                            memory_key_padding_mask=visual_padding_mask, pos=visual_pos_enc,
-                            query_pos=text_pos_enc).transpose(1, 2)
-        else:
-            out = self.decoder(text_embed, visual_embed, tgt_key_padding_mask=text_padding_mask,
-                           memory_key_padding_mask=visual_padding_mask, pos=visual_pos_enc,
-                           query_pos=None).transpose(1, 2)  
+        
+        out = self.decoder(text_embed, visual_embed, tgt_key_padding_mask=text_padding_mask,
+                        memory_key_padding_mask=visual_padding_mask, pos=visual_pos_enc,
+                        query_pos=text_pos_enc).transpose(1, 2)
         
         normalized_text = F.normalize(self.t_sim_proj(out[-1]), dim=-1)
         normalized_visual = F.normalize(self.v_sim_proj(visual_embed).transpose(0, 1), dim=-1)
@@ -157,7 +155,7 @@ class DETR(nn.Module):
         last_layer_similarity = torch.einsum('BSD,BTD->BST', [normalized_text, normalized_visual])
         return last_layer_similarity
 
-    def compute_all(self, visual_input, visual_padding_mask, text_input, text_padding_mask):
+    def compute_all(self, visual_input, visual_padding_mask, text_input, text_padding_mask, shuffle):
         T, S = visual_input.shape[1], text_input.shape[1]
 
         visual_input = visual_input.transpose(0, 1)
@@ -167,18 +165,18 @@ class DETR(nn.Module):
         visual_pos_enc = self.visual_pos_enc.pe[:, :T, :].transpose(0, 1)
 
         text_embed = self.text_proj(text_input)
-        text_pos_enc = self.text_pos_enc.weight[:S, None, :]
+
+        if not shuffle:
+            text_pos_enc = self.text_pos_enc.weight[:text_embed.shape[0], None, :] # (S, 1, d_model)
+        else:
+            text_pos_enc = None
+        
         visual_embed = self.visual_encoder(
             visual_embed, src_key_padding_mask=visual_padding_mask, pos=visual_pos_enc)
-
-        if self.use_text_pos:
-            out = self.decoder(text_embed, visual_embed, tgt_key_padding_mask=text_padding_mask,
-                            memory_key_padding_mask=visual_padding_mask, pos=visual_pos_enc,
-                            query_pos=text_pos_enc).transpose(1, 2)
-        else:
-            out = self.decoder(text_embed, visual_embed, tgt_key_padding_mask=text_padding_mask,
-                           memory_key_padding_mask=visual_padding_mask, pos=visual_pos_enc,
-                           query_pos=None).transpose(1, 2)
+        
+        out = self.decoder(text_embed, visual_embed, tgt_key_padding_mask=text_padding_mask,
+                        memory_key_padding_mask=visual_padding_mask, pos=visual_pos_enc,
+                        query_pos=text_pos_enc).transpose(1, 2)
 
         normalized_text = F.normalize(self.t_sim_proj(out[-1]), dim=-1)
         normalized_visual = F.normalize(self.v_sim_proj(visual_embed).transpose(0, 1), dim=-1)

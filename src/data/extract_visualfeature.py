@@ -32,7 +32,7 @@ except:
     print(f'using ffmpeg from: {out}')
 
 
-PREFIX = os.path.expanduser("/remote-home/share/zeqianli/HowTo100M/HT-Step/missing_videos/")
+PREFIX = os.path.expanduser("path_to_videos")
 
 
 def check_existence(video_list, video_root, vid_to_path_dict, tmpdir='tmp'):
@@ -275,7 +275,7 @@ def main(args, root):
     device = torch.device('cuda:3')
 
     if args.model in ['internvideo-ffmpeg']:
-        model = InternVideo.load_model(os.path.expanduser("InternVideo/Pretrain/Multi-Modalities-Pretraining/models/InternVideo-MM-L-14.ckpt")).to(device)
+        model = InternVideo.load_model(os.path.expanduser("path_to_InternVideo-MM-L-14.ckpt_from_https://github.com/OpenGVLab/InternVideo")).to(device)
         if args.half:
             state_dict = model.state_dict()
             convert_weights(model)
@@ -293,7 +293,7 @@ def main(args, root):
     ori_num_vid = len(vid_list)
     
 
-    args.output_dir = os.path.expanduser(f'/remote-home/share/zeqianli/HowTo100M/HT-Step/missing_features')
+    args.output_dir = os.path.expanduser(f'path_to_feature')
     output_path = args.output_dir
     os.makedirs(output_path, exist_ok=True)
     

@@ -1,4 +1,4 @@
-# import sys
+import sys
 # sys.path.insert(0, 'src')
 import os
 import wandb
@@ -12,14 +12,16 @@ from src.trainer.train import do_train
 from src.utils.config import load_configs
 from src.utils.utils import set_random_seed, set_device
 from src.utils.checkpointer import Checkpointer
+from src.utils.logger import Logger
 
 
 def main():
 
     # load configs
     cfg = load_configs()
-    # assert cfg.dataset.text_shuffle != cfg.dataset.text_pe
     # ipdb.set_trace()
+    
+    sys.stdout = Logger(os.path.join(cfg.output_dir,'log.txt'))
 
     # save the current config
     with open(os.path.join(cfg.output_dir, 'config.txt'), 'w') as fid:
