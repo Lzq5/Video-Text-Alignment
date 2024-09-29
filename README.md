@@ -70,11 +70,11 @@ The results should be
 ## Citation
 If you are using our code, please consider citing our paper.
 ```bibtex
-@article{li2023strong,
+@article{li2024multi,
 title={Multi-Sentence Grounding for Long-term Instructional Video},
 author={Li, Zeqian and Chen, Qirui and Han, Tengda and Zhang, Ya and Wang, Yanfeng and Xie, Weidi},
-journal={arXiv preprint arXiv:2312.14055},
-year={2023}
+booktitle={European Conference on Computer Vision},
+year={2024}
 }
 ```
 
